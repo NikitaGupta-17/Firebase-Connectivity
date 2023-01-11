@@ -69,18 +69,20 @@
   </div>
   <table style="width:100%" id="ex-table">
   <tr id="tr">
+    <th>S.No</th>
     <th>Name</th>
     <th>Email Id</th> 
     <th>Book</th>
     <th>Author</th>
     <th>Delete</th>
   </tr>
-  <tr v-for="item in object">
+  <tr v-for="(item, index ) in object">
+    <td>{{ item.id }}</td>
     <td>{{ item.name }}</td>
     <td>{{ item.email }}</td>
     <td>{{ item.book }}</td>
     <td>{{ item.uthor }}</td>
-    <td><button type="button" class="btn cancel" @click="Delete(item.name)">Delete</button></td>
+    <td><button type="button" class="btn cancel" @click="Delete(item.name,index)">Delete</button></td>
   </tr>
 </table> 
 </template>
@@ -185,11 +187,11 @@ export default {
       object: [],
     };
   },
-  // computed: {
-  //   trackId: function() {
-  //     return this.object.length;
-  //   },
-  // },
+  computed: {
+    trackId: function() {
+      return this.object.length;
+    },
+  },
   methods: {
     openForm() {
       document.getElementById("popupForm").style.display = "block";
@@ -202,8 +204,8 @@ export default {
       document.getElementById("author").value="";
       document.getElementById("id").value="";
     },
-    async Delete(childKey) {
-      this.object.pop(this.item);
+    async Delete(childKey,index) {
+      this.object.splice(index,1);
       await deleteDoc(doc(dbs, "db", childKey));
       alert('row was removed');
     },
@@ -218,7 +220,7 @@ export default {
       }
       await setDoc(doc(dbs,"db",this.name),newUser);
       console.log(newUser);
-      this.object.push({ name: this.name, email: this.email, book: this.book, uthor: this.author});
+      this.object.push({ id: this.trackId+1,name: this.name, email: this.email, book: this.book, uthor: this.author});
       this.newItem ="";
     },
     async getItem() {
@@ -226,7 +228,7 @@ export default {
       const docSnap = await getDocs(collection(dbs,"db"));
       docSnap.forEach((doc) => {
         var val = doc.data();
-        this.object.push({ name: val.Name, email: val.Email, book: val.Book, uthor: val.uthor });
+        this.object.push({ id: this.trackId+1,name: val.Name, email: val.Email, book: val.Book, uthor: val.uthor });
         this.newItem ="";
       });
     },
